@@ -92,16 +92,14 @@ for ep in range(config.NUM_EPS):
             transition = Transition(torch.tensor(obs).to(device, non_blocking=True), torch.tensor([action]).to(device, non_blocking=True),
                                     None, torch.tensor([reward]).to(device, non_blocking=True))  # SARSA?
         replay_memory.push(transition)
-        # if reward>0:
-        #     print(transition)
 
         obs = new_obs
-        # if render:
-        #     env.render()
-        # print('Reward:', reward)
-        # print(len(replay_memory))
+
         if step%config.STEP_SIZE==0:
             optimize_model(policy_net, target_net, replay_memory, optimizer)
+
+        # if render:
+        #     env.render()
         if done:
             # if render:
             #     cv2.destroyAllWindows()
@@ -112,7 +110,7 @@ for ep in range(config.NUM_EPS):
     if ep % config.TARGET_UPDATE == 0:
         print('EPISODES:',ep)
         print('Last 100 episodes mean rewards:',np.mean(episode_rewards[-100:]))
-        print(ep / (time.time()-t),'FPS')
+        print(steps_done / (time.time()-t),'FPS')
         # t = time.time()
         target_net.load_state_dict(policy_net.state_dict())
 
