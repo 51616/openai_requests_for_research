@@ -50,23 +50,25 @@ def plot_rewards():
 
 policy_net = convnet(config.BOARD_SIZE).float().to(device, non_blocking=True).eval()
 target_net = convnet(config.BOARD_SIZE).float().to(device, non_blocking=True).eval()
-optimizer = torch.optim.Adam(policy_net.parameters(), lr=5e-4, weight_decay=1e-5, amsgrad=True)
+optimizer = torch.optim.Adam(policy_net.parameters(), lr=1e-4, amsgrad=True)
 
 env = Snake(config.BOARD_SIZE)
 
 replay_memory = ReplayMemory(capacity=10000)
 
 steps_done = 0
+ep = 0
 episode_rewards = []
 episode_durations = []
 means = []
 
 t = time.time()
 
-for ep in range(config.NUM_EPS):
+while (steps_done < config.NUM_STEPS):
     done = False
     obs = env.reset()
     cum_reward = 0
+    ep += 1
     # render = False
     # if ep % config.SHOW_IT==0:
     #     render = True
@@ -110,7 +112,9 @@ for ep in range(config.NUM_EPS):
     if ep % config.TARGET_UPDATE == 0:
         print('EPISODES:',ep)
         print('Last 100 episodes mean rewards:',np.mean(episode_rewards[-100:]))
+        print('Total steps:',steps_done)
         print(steps_done / (time.time()-t),'FPS')
+        print()
         # t = time.time()
         target_net.load_state_dict(policy_net.state_dict())
 

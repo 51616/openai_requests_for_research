@@ -39,8 +39,8 @@ class Snake():
         self.board_food = np.zeros(
             (self.board_size, self.board_size), dtype='uint8')
 
-        # rand_y = np.random.randint(self.board_size)  # (self.board_size+1)//2
-        self.body = [(self.board_size//2+1,i) for i in range(5)]
+        rand_y = np.random.randint(self.board_size)  # (self.board_size+1)//2
+        self.body = [(rand_y,i) for i in range(5)] #self.board_size//2+1
         for y, x in self.body:
             self.board_body[y, x] = 1
         self.head = (self.body[-1][0], self.body[-1][1])
