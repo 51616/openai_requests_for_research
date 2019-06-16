@@ -1,0 +1,125 @@
+from game import Snake
+from model import feedforward, convnet
+from trainer import ReplayMemory, select_action, optimize_model
+from utils import Transition
+import config
+
+from collections import namedtuple
+import numpy as np
+import random
+import cv2
+import matplotlib
+import matplotlib.pyplot as plt
+import torch
+from itertools import count
+import time
+
+is_ipython = 'inline' in matplotlib.get_backend()
+if is_ipython:
+    from IPython import display
+
+plt.ion()
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+def plot_rewards():
+    global means
+    plt.figure(2)
+    plt.clf()
+    # durations_t = torch.tensor(episode_durations, dtype=torch.float)
+    plt.title('Training...')
+    plt.xlabel('Episode')
+    plt.ylabel('Episode reward')
+    plt.plot(episode_rewards)
+    #plt.plot(episode_durations)
+    
+    # Take 100 episode averages and plot them too
+    means.append(np.mean(episode_rewards[-100:]))
+    plt.plot(means)
+    # if len(episode_durations) >= 100:
+    #     # means = durations_t.unfold(0, 100, 1).mean(1).view(-1)
+    #     # means = torch.cat((torch.zeros(99), means))
+    #     means.append(np.mean(episode_durations[-100:]))
+    #     plt.plot(means)
+
+    plt.pause(0.001)  # pause a bit so that plots are updated
+    if is_ipython:
+        display.clear_output(wait=True)
+        display.display(plt.gcf())
+
+
+policy_net = convnet(config.BOARD_SIZE).float().to(device, non_blocking=True).eval()
+target_net = convnet(config.BOARD_SIZE).float().to(device, non_blocking=True).eval()
+optimizer = torch.optim.Adam(policy_net.parameters(), lr=5e-4, weight_decay=1e-5, amsgrad=True)
+
+env = Snake(config.BOARD_SIZE)
+
+replay_memory = ReplayMemory(capacity=10000)
+
+steps_done = 0
+episode_rewards = []
+episode_durations = []
+means = []
+
+t = time.time()
+
+for ep in range(config.NUM_EPS):
+    done = False
+    obs = env.reset()
+    render = False
+    cum_reward = 0
+    if ep % config.SHOW_IT==0:
+        render = True
+    if render:
+        env.render()
+    for step in count(1):
+        # action = np.random.choice(env.action_space)
+        # pred = nnet(obs).detach().numpy()
+        # action = np.argmax(pred)
+        # print('Model mode:',policy_net.training)
+        action = select_action(obs, policy_net, steps_done)
+        # print(action)
+        steps_done += 1
+
+        new_obs, reward, done = env.step(action)
+        cum_reward += reward
+        
+        if not done:
+            transition = Transition(torch.tensor(obs).to(device, non_blocking=True), torch.tensor([action]).to(device, non_blocking=True),
+                                    torch.tensor(new_obs).to(device, non_blocking=True), torch.tensor([reward]).to(device, non_blocking=True))
+        else:
+            next_state = None
+            transition = Transition(torch.tensor(obs).to(device, non_blocking=True), torch.tensor([action]).to(device, non_blocking=True),
+                                    None, torch.tensor([reward]).to(device, non_blocking=True))  # SARSA?
+        replay_memory.push(transition)
+        # if reward>0:
+        #     print(transition)
+
+        obs = new_obs
+        if render:
+            env.render()
+        # print('Reward:', reward)
+        # print(len(replay_memory))
+        if step%config.STEP_SIZE==0:
+            optimize_model(policy_net, target_net, replay_memory, optimizer)
+        if done:
+            if render:
+                cv2.destroyAllWindows()
+            break
+
+    episode_rewards.append(cum_reward)
+    # Update the target network, copying all weights and biases in DQN
+    if ep % config.TARGET_UPDATE == 0:
+        print('EPISODES:',ep)
+        print('Last 100 episodes mean rewards:',np.mean(episode_rewards[-100:]))
+        print(ep / (time.time()-t),'FPS')
+        # t = time.time()
+        target_net.load_state_dict(policy_net.state_dict())
+
+
+torch.save({
+            'episodes': ep,
+            'model_state_dict': policy_net.state_dict(),
+            'optimizer_state_dict': optimizer.state_dict(),
+            '100eps_mean_reward': np.mean(episode_rewards[-100:]),
+            }, 'policy_net.pth')
