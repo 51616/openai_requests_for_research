@@ -54,7 +54,7 @@ optimizer = torch.optim.Adam(policy_net.parameters(), lr=1e-4, amsgrad=True)
 
 env = Snake(config.BOARD_SIZE)
 
-replay_memory = ReplayMemory(capacity=10000)
+replay_memory = ReplayMemory(capacity=100000)
 
 steps_done = 0
 ep = 0
@@ -97,7 +97,7 @@ while (steps_done < config.NUM_STEPS):
 
         obs = new_obs
 
-        if step%config.STEP_SIZE==0:
+        if (step%config.STEP_SIZE==0) and (steps_done>=10000):
             optimize_model(policy_net, target_net, replay_memory, optimizer)
 
         # if render:
