@@ -66,12 +66,12 @@ t = time.time()
 for ep in range(config.NUM_EPS):
     done = False
     obs = env.reset()
-    render = False
     cum_reward = 0
-    if ep % config.SHOW_IT==0:
-        render = True
-    if render:
-        env.render()
+    # render = False
+    # if ep % config.SHOW_IT==0:
+    #     render = True
+    # if render:
+    #     env.render()
     for step in count(1):
         # action = np.random.choice(env.action_space)
         # pred = nnet(obs).detach().numpy()
@@ -96,15 +96,15 @@ for ep in range(config.NUM_EPS):
         #     print(transition)
 
         obs = new_obs
-        if render:
-            env.render()
+        # if render:
+        #     env.render()
         # print('Reward:', reward)
         # print(len(replay_memory))
         if step%config.STEP_SIZE==0:
             optimize_model(policy_net, target_net, replay_memory, optimizer)
         if done:
-            if render:
-                cv2.destroyAllWindows()
+            # if render:
+            #     cv2.destroyAllWindows()
             break
 
     episode_rewards.append(cum_reward)
