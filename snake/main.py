@@ -48,10 +48,10 @@ def plot_rewards():
         display.display(plt.gcf())
 
 
-policy_net = convnet(config.BOARD_SIZE).float().to(device, non_blocking=True).eval()
-target_net = convnet(config.BOARD_SIZE).float().to(device, non_blocking=True).eval()
+policy_net = convnet(config.BOARD_SIZE, in_channel=5).float().to(device, non_blocking=True).eval()
+target_net = convnet(config.BOARD_SIZE, in_channel=5).float().to(device, non_blocking=True).eval()
 optimizer = torch.optim.RMSprop(policy_net.parameters(), lr=5e-4, momentum=0.9)
-scheduler = torch.optim.lr_scheduler.CyclicLR(optimizer, 1e-6, 1e-3, step_size_up=4000)
+scheduler = torch.optim.lr_scheduler.CyclicLR(optimizer, 1e-6, 1e-4, step_size_up=4000)
 
 env = Snake(config.BOARD_SIZE)
 
@@ -126,5 +126,6 @@ torch.save({
             'episodes': ep,
             'model_state_dict': policy_net.state_dict(),
             'optimizer_state_dict': optimizer.state_dict(),
+            'scheduler_state_dict':scheduler.state_dict(),
             '100eps_mean_reward': np.mean(episode_rewards[-100:]),
             }, 'policy_net.pth')
