@@ -89,11 +89,11 @@ while (steps_done < config.NUM_STEPS):
         
         if not done:
             transition = Transition(torch.tensor(obs).to(device, non_blocking=True), torch.tensor([action]).to(device, non_blocking=True),
-                                    torch.tensor(new_obs).to(device, non_blocking=True), torch.tensor([reward]).to(device, non_blocking=True))
+                                    torch.tensor(new_obs).to(device, non_blocking=True), torch.tensor([reward]).to(device, non_blocking=True).float())
         else:
             next_state = None
             transition = Transition(torch.tensor(obs).to(device, non_blocking=True), torch.tensor([action]).to(device, non_blocking=True),
-                                    None, torch.tensor([reward]).to(device, non_blocking=True))  # SARSA?
+                                    None, torch.tensor([reward]).to(device, non_blocking=True).float())  # SARSA?
         replay_memory.push(transition)
 
         obs = new_obs
