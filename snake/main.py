@@ -51,7 +51,7 @@ def plot_rewards():
 policy_net = convnet(config.BOARD_SIZE).float().to(device, non_blocking=True).eval()
 target_net = convnet(config.BOARD_SIZE).float().to(device, non_blocking=True).eval()
 optimizer = torch.optim.RMSprop(policy_net.parameters(), lr=5e-4, momentum=0.9)
-scheduler = torch.optim.lr_scheduler.CyclicLR(optimizer, 1e-5, 5e-4)
+scheduler = torch.optim.lr_scheduler.CyclicLR(optimizer, 1e-6, 5e-4)
 
 env = Snake(config.BOARD_SIZE)
 
