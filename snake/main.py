@@ -55,7 +55,7 @@ scheduler = torch.optim.lr_scheduler.CyclicLR(optimizer, 1e-6, 1e-4, step_size_u
 
 env = Snake(config.BOARD_SIZE)
 
-replay_memory = ReplayMemory(capacity=100000)
+replay_memory = ReplayMemory(capacity=10000)
 
 steps_done = 0
 ep = 0
