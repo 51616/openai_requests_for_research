@@ -44,7 +44,7 @@ def select_action(obs, policy_net, steps_done):
         return np.random.randint(4)  # torch.tensor([[random.randrange(4)]])  # , device=device, dtype=torch.long
 
 
-def optimize_model(policy_net, target_net, replay_memory, optimizer):
+def optimize_model(policy_net, target_net, replay_memory, optimizer, scheduler):
     if len(replay_memory) < config.BATCH_SIZE:
         return
     # print('Training...')
@@ -94,11 +94,14 @@ def optimize_model(policy_net, target_net, replay_memory, optimizer):
     # print(loss.item())
 
     # Optimize the model
+    # for param_group in optimizer.param_groups:
+    #     print(param_group['lr'])
     optimizer.zero_grad()
     loss.backward()
     for param in policy_net.parameters():
         param.grad.data.clamp_(-1, 1)
     optimizer.step()
+    scheduler.step()
     policy_net.eval()
     # print('Model mode:',policy_net.training)
     return
