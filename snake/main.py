@@ -96,6 +96,8 @@ while (steps_done < config.NUM_STEPS):
                                     None, torch.tensor([reward]).to(device, non_blocking=True).float())  # SARSA?
         replay_memory.push(transition)
 
+        # print(transition)
+
         obs = new_obs
 
         if (step%config.STEP_SIZE==0) and (steps_done>=10000):

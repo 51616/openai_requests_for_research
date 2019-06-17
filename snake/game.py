@@ -1,6 +1,8 @@
 import numpy as np
 import random
 from PIL import Image
+import torch
+import torch.nn.functional as F
 import cv2
 
 RIGHT_MOVE = 0
@@ -12,7 +14,7 @@ FOOD = 1
 BODY = -1
 
 FOOD_REWARD = 1
-MOVE_REWARD = 0.1
+MOVE_REWARD = 0
 DEATH_PENALTY = -1
 
 
@@ -33,19 +35,19 @@ class Snake():
 
     def reset(self):
         self.board_body = np.zeros(
-            (self.board_size, self.board_size), dtype='uint8')
+            (self.board_size, self.board_size), dtype='int8')
         self.board_head = np.zeros(
-            (self.board_size, self.board_size), dtype='uint8')
+            (self.board_size, self.board_size), dtype='int8')
         self.board_food = np.zeros(
-            (self.board_size, self.board_size), dtype='uint8')
+            (self.board_size, self.board_size), dtype='int8')
         self.board_tail = np.zeros(
-            (self.board_size, self.board_size), dtype='uint8')
+            (self.board_size, self.board_size), dtype='int8')
         
 
         rand_y = np.random.randint(self.board_size)  # (self.board_size+1)//2
         self.body = [(rand_y,i) for i in range(5)] #self.board_size//2+1
-        for y, x in self.body:
-            self.board_body[y, x] = 1
+        for i, (y, x) in enumerate(self.body):
+            self.board_body[y, x] = i+1
         self.head = (self.body[-1][0], self.body[-1][1])
         self.tail = (self.body[0][0], self.body[0][1])
         self.board_head[self.head[0], self.head[1]] = 1
@@ -94,8 +96,9 @@ class Snake():
         if self.board_food[next_y, next_x]:
 
             self.board_head[next_y, next_x] = 1
-            self.board_body[next_y, next_x] = 1
+            
             self.body.append((next_y, next_x))
+            self.board_body[next_y, next_x] = len(self.body)
             # self.board_body[self.head[0], self.head[1]] = 1
             self.board_head[self.head[0], self.head[1]] = 0
             self.board_food[next_y, next_x] = 0
@@ -108,8 +111,9 @@ class Snake():
 
         # normal move
         else:
+            self.board_body = F.relu(torch.from_numpy(self.board_body - 1)).numpy()
             self.board_head[next_y, next_x] = 1
-            self.board_body[next_y, next_x] = 1
+            self.board_body[next_y, next_x] = len(self.body)
             self.board_body[self.body[0][0], self.body[0][1]] = 0
             self.board_tail[self.tail[0], self.tail[1]] = 0
 
