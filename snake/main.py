@@ -50,12 +50,12 @@ def plot_rewards():
 
 policy_net = convnet(config.BOARD_SIZE, in_channel=5).float().to(device, non_blocking=True).eval()
 target_net = convnet(config.BOARD_SIZE, in_channel=5).float().to(device, non_blocking=True).eval()
-optimizer = torch.optim.RMSprop(policy_net.parameters(), lr=5e-4, momentum=0.9)
+optimizer = torch.optim.RMSprop(policy_net.parameters(), lr=1e-4, momentum=0.9)
 scheduler = torch.optim.lr_scheduler.CyclicLR(optimizer, 1e-6, 1e-4, step_size_up=4000)
 
 env = Snake(config.BOARD_SIZE)
 
-replay_memory = ReplayMemory(capacity=10000)
+replay_memory = ReplayMemory(capacity=100000)
 
 steps_done = 0
 ep = 0

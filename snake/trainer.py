@@ -44,7 +44,9 @@ def select_action(obs, policy_net, steps_done, explore=True):
             return np.random.randint(4)  # torch.tensor([[random.randrange(4)]])  # , device=device, dtype=torch.long
     else:
         state = torch.tensor(obs).to(device, non_blocking=True)
-        return np.argmax(policy_net(state).detach().cpu().numpy())
+        pred = policy_net(state)
+        # print(pred)
+        return np.argmax(pred.detach().cpu().numpy())
 
 
 def optimize_model(policy_net, target_net, replay_memory, optimizer, scheduler):
@@ -104,7 +106,7 @@ def optimize_model(policy_net, target_net, replay_memory, optimizer, scheduler):
     for param in policy_net.parameters():
         param.grad.data.clamp_(-1, 1)
     optimizer.step()
-    scheduler.step()
+    # scheduler.step()
     policy_net.eval()
     # print('Model mode:',policy_net.training)
     return

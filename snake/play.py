@@ -16,7 +16,7 @@ import time
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-checkpoint = torch.load('policy_net.pth')
+checkpoint = torch.load('policy_net_with_tail.pth')
 
 policy_net = convnet(config.BOARD_SIZE).float().to(device, non_blocking=True)
 policy_net.load_state_dict(checkpoint['model_state_dict'])
@@ -30,18 +30,16 @@ while 1:
     obs = env.reset()
     cum_reward = 0
     render = True
-    if render:
-        env.render()
+    env.render()
     for step in count(1):
         action = select_action(obs, policy_net, 0, explore=False)
         new_obs, reward, done = env.step(action)
         cum_reward += reward
         obs = new_obs
 
-        if render:
-            env.render()
+        env.render()
+
         if done:
-            if render:
-                cv2.destroyAllWindows()
+            cv2.destroyAllWindows()
             break
     print('Reward:',cum_reward)
