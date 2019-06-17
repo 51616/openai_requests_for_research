@@ -38,21 +38,26 @@ class Snake():
             (self.board_size, self.board_size), dtype='uint8')
         self.board_food = np.zeros(
             (self.board_size, self.board_size), dtype='uint8')
+        self.board_tail = np.zeros(
+            (self.board_size, self.board_size), dtype='uint8')
+        
 
         rand_y = np.random.randint(self.board_size)  # (self.board_size+1)//2
         self.body = [(rand_y,i) for i in range(5)] #self.board_size//2+1
         for y, x in self.body:
             self.board_body[y, x] = 1
         self.head = (self.body[-1][0], self.body[-1][1])
+        self.tail = (self.body[0][0], self.body[0][1])
         self.board_head[self.head[0], self.head[1]] = 1
+        self.board_tail[self.tail[0], self.tail[1]] = 1
         self.facing = RIGHT_MOVE
         self.food = self.create_food()
-        return (self.board_body.copy(),self.board_head.copy(),self.board_food.copy())
+        return (self.board_body.copy(),self.board_head.copy(), self.board_tail.copy(),self.board_food.copy())
 
     def step(self, action):  # return obs,reward,done
         # check if input is valid action
         if action not in self.action_space:
-            return (self.board, -1, True)
+            return ((self.board_body.copy(),self.board_head.copy(), self.board_tail.copy(),self.board_food.copy()), -1, True)
 
         # refuse to go backward
         if abs(action-self.facing) == 2:
@@ -77,10 +82,10 @@ class Snake():
 
         # hit the wall
         if next_x == self.board_size or next_y == self.board_size or next_x < 0 or next_y < 0:
-            return ((self.board_body.copy(),self.board_head.copy(),self.board_food.copy()), DEATH_PENALTY, True)
+            return ((self.board_body.copy(),self.board_head.copy(), self.board_tail.copy(),self.board_food.copy()), DEATH_PENALTY, True)
         # hit body
         if self.board_body[next_y, next_x]:
-            return ((self.board_body.copy(),self.board_head.copy(),self.board_food.copy()), DEATH_PENALTY, True)
+            return ((self.board_body.copy(),self.board_head.copy(), self.board_tail.copy(),self.board_food.copy()), DEATH_PENALTY, True)
         # hit the food
         if self.board_food[next_y, next_x]:
 
@@ -94,16 +99,20 @@ class Snake():
 
             self.food = self.create_food()
 
-            return ((self.board_body.copy(),self.board_head.copy(),self.board_food.copy()), FOOD_REWARD, False)
+            return ((self.board_body.copy(),self.board_head.copy(), self.board_tail.copy(),self.board_food.copy()), FOOD_REWARD, False)
 
         # normal move
         else:
             self.board_head[next_y, next_x] = 1
             self.board_body[next_y, next_x] = 1
             self.board_body[self.body[0][0], self.body[0][1]] = 0
+            self.board_tail[self.tail[0], self.tail[1]] = 0
 
-            self.body.append((next_y, next_x))
+            self.body.append((next_y, next_x))            
             self.body = self.body[1:]
+           
+            self.tail = (self.body[0][0], self.body[0][1])
+            self.board_tail[self.tail[0], self.tail[1]] = 1
 
             # self.board_body[self.head[0], self.head[1]] = 1
             self.board_head[self.head[0], self.head[1]] = 0
@@ -112,7 +121,7 @@ class Snake():
             # print('New board')
             # print(self.board)
 
-            return ((self.board_body.copy(),self.board_head.copy(),self.board_food.copy()), MOVE_REWARD, False)
+            return ((self.board_body.copy(),self.board_head.copy(), self.board_tail.copy(),self.board_food.copy()), MOVE_REWARD, False)
 
     def render(self):
         render_arr = np.zeros(
