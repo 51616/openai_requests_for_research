@@ -80,7 +80,7 @@ def optimize_model(policy_net, target_net, replay_memory, optimizer, scheduler):
     # on the "older" target_net; selecting their best reward with max(1)[0].
     # This is merged based on the mask, such that we'll have either the expected
     # state value or 0 in case the state was final.
-    next_state_values = torch.zeros(config.BATCH_SIZE, device=device)
+    next_state_values = torch.ones(config.BATCH_SIZE, device=device) * (-1)
     next_state_values[non_final_mask] = target_net(non_final_next_states).max(1)[0].detach()
     next_state_values = next_state_values.view(config.BATCH_SIZE,1).float()
     # Compute the expected Q values

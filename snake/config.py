@@ -3,7 +3,7 @@ import torch
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # device = 'cpu'
 
-BOARD_SIZE = 9
+BOARD_SIZE = 7
 
 NUM_STEPS = 1000000
 STEP_SIZE = 4
