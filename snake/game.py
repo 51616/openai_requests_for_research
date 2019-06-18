@@ -35,13 +35,13 @@ class Snake():
 
     def reset(self):
         self.board_body = np.zeros(
-            (self.board_size, self.board_size), dtype='int8')
+            (self.board_size, self.board_size), dtype='int')
         self.board_head = np.zeros(
-            (self.board_size, self.board_size), dtype='int8')
+            (self.board_size, self.board_size), dtype='int')
         self.board_food = np.zeros(
-            (self.board_size, self.board_size), dtype='int8')
+            (self.board_size, self.board_size), dtype='int')
         self.board_tail = np.zeros(
-            (self.board_size, self.board_size), dtype='int8')
+            (self.board_size, self.board_size), dtype='int')
         
 
         rand_y = np.random.randint(self.board_size)  # (self.board_size+1)//2

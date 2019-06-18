@@ -3,6 +3,7 @@ from model import feedforward, convnet
 from trainer import ReplayMemory, select_action, optimize_model
 from utils import Transition
 import config
+from config import device
 
 from collections import namedtuple
 import numpy as np
@@ -20,7 +21,6 @@ if is_ipython:
 
 plt.ion()
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def plot_rewards():
     global means

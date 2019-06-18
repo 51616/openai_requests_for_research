@@ -2,11 +2,10 @@ import random
 import torch
 import torch.nn.functional as F
 import config
+from config import device
 import math
 import numpy as np
 from utils import Transition
-
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class ReplayMemory(object):
 
