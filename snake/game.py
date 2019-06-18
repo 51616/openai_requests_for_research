@@ -15,7 +15,7 @@ BODY = -1
 
 FOOD_REWARD = 1
 MOVE_REWARD = 0
-DEATH_PENALTY = -1
+DEATH_PENALTY = -10
 
 
 class Snake():
