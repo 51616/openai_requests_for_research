@@ -69,7 +69,7 @@ while (steps_done < config.TOTAL_STEPS):
                 n_steps_reward = 0
                 for i in range(n_steps):
                     n_steps_reward += (config.GAMMA**i) * rewards[i]
-                transition = Transition(torch.tensor(states[0]).to(device, non_blocking=True), torch.tensor([action[0]]).to(device, non_blocking=True),
+                transition = Transition(torch.tensor(states[0]).to(device, non_blocking=True), torch.tensor([actions[0]]).to(device, non_blocking=True),
                                         torch.tensor(new_obs).to(device, non_blocking=True), torch.tensor([n_steps_reward]).to(device, non_blocking=True).float())
                 replay_memory.push(transition)
             
