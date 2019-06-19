@@ -1,0 +1,12 @@
+
+snake_wurm/
+
+wurm/
+
+*.pth
+
+reinforcement_q_learning\.ipynb
+
+snake/__pycache__/
+
+\.ipynb_checkpoints/
