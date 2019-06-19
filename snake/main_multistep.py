@@ -54,7 +54,6 @@ while (steps_done < config.TOTAL_STEPS):
         states.append(obs)
 
         if done:
-            # print('Terminal')
             for i in range(len(states)):
                 n_steps_reward = 0
                 for td,j in enumerate(range(i,len(rewards))):
@@ -64,15 +63,11 @@ while (steps_done < config.TOTAL_STEPS):
                 replay_memory.push(transition)
 
         elif len(states)==n_steps:
-            # print('Appending...')
-            if not done:
-                # print('Not terminal')
                 n_steps_reward = 0
                 for i in range(n_steps):
                     n_steps_reward += (config.GAMMA**i) * rewards[i]
                 transition = Transition(torch.tensor(states[0]).to(device, non_blocking=True), torch.tensor([action]).to(device, non_blocking=True),
                                         torch.tensor(new_obs).to(device, non_blocking=True), torch.tensor([n_steps_reward]).to(device, non_blocking=True).float())
-                # print(transition)
                 replay_memory.push(transition)
             
 
