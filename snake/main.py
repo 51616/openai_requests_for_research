@@ -51,7 +51,7 @@ def plot_rewards():
 policy_net = convnet(config.BOARD_SIZE, in_channel=5).float().to(device, non_blocking=True).eval()
 target_net = convnet(config.BOARD_SIZE, in_channel=5).float().to(device, non_blocking=True).eval()
 optimizer = torch.optim.RMSprop(policy_net.parameters(), lr=1e-4, momentum=0.9)
-scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones= [25000,50000,125000,250000,1250000], gamma=0.5)
+scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones= [25000,50000,75000,100000,125000,200000], gamma=0.5)
 
 env = Snake(config.BOARD_SIZE)
 
@@ -91,9 +91,9 @@ while (steps_done < config.TOTAL_STEPS):
             transition = Transition(torch.tensor(obs).to(device, non_blocking=True), torch.tensor([action]).to(device, non_blocking=True),
                                     torch.tensor(new_obs).to(device, non_blocking=True), torch.tensor([reward]).to(device, non_blocking=True).float())
         else:
-            next_state = None
             transition = Transition(torch.tensor(obs).to(device, non_blocking=True), torch.tensor([action]).to(device, non_blocking=True),
                                     None, torch.tensor([reward]).to(device, non_blocking=True).float())  # SARSA?
+        # print(transition)
         replay_memory.push(transition)
 
         # print(transition)

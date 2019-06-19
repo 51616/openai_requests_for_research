@@ -16,7 +16,7 @@ import time
 policy_net = convnet(config.BOARD_SIZE, in_channel=5).float().to(device, non_blocking=True).eval()
 target_net = convnet(config.BOARD_SIZE, in_channel=5).float().to(device, non_blocking=True).eval()
 optimizer = torch.optim.RMSprop(policy_net.parameters(), lr=1e-4, momentum=0.9)
-scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones= [25000,50000,125000,250000,1250000], gamma=0.5)
+scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones= [25000,50000,75000,100000,125000,200000], gamma=0.5)
 
 env = Snake(config.BOARD_SIZE)
 
@@ -37,12 +37,12 @@ while (steps_done < config.TOTAL_STEPS):
     obs = env.reset()
     cum_reward = 0
     ep += 1
-    if (ep%config.N_STEPS_UPDATE) and (ep>1):
+    if (ep%config.N_STEPS_UPDATE==0) and (ep>1):
         n_steps = min(n_steps+1, config.MAX_N_STEPS)
 
-    rewards = deque([], maxlen= n_steps)
-    states = deque([], maxlen= n_steps)
-    actions = deque([], maxlen= n_steps)
+    rewards = deque([], maxlen = n_steps)
+    states = deque([], maxlen = n_steps)
+    actions = deque([], maxlen = n_steps)
 
     for step in count(1):
 
@@ -63,6 +63,7 @@ while (steps_done < config.TOTAL_STEPS):
                     n_steps_reward += (config.GAMMA**td) * rewards[j]
                 transition = Transition(torch.tensor(states[i]).to(device, non_blocking=True), torch.tensor([actions[i]]).to(device, non_blocking=True),
                                         None, torch.tensor([n_steps_reward]).to(device, non_blocking=True).float())
+                # print(transition)
                 replay_memory.push(transition)
 
         elif len(states)==n_steps:
@@ -71,7 +72,9 @@ while (steps_done < config.TOTAL_STEPS):
                     n_steps_reward += (config.GAMMA**i) * rewards[i]
                 transition = Transition(torch.tensor(states[0]).to(device, non_blocking=True), torch.tensor([actions[0]]).to(device, non_blocking=True),
                                         torch.tensor(new_obs).to(device, non_blocking=True), torch.tensor([n_steps_reward]).to(device, non_blocking=True).float())
+                # print(transition)
                 replay_memory.push(transition)
+
             
 
         if (steps_done%config.STEP_SIZE==0) and (len(replay_memory)>=10000):
