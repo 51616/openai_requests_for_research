@@ -50,7 +50,7 @@ def plot_rewards():
 
 policy_net = convnet(config.BOARD_SIZE, in_channel=5).float().to(device, non_blocking=True).eval()
 target_net = convnet(config.BOARD_SIZE, in_channel=5).float().to(device, non_blocking=True).eval()
-optimizer = torch.optim.Adam(policy_net.parameters(), lr=1e-4)
+optimizer = torch.optim.RMSprop(policy_net.parameters(), lr=1e-4, momentum=0.9)
 scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones= [25000,50000,200000,1250000], gamma=0.1)
 
 env = Snake(config.BOARD_SIZE)
@@ -102,8 +102,8 @@ while (steps_done < config.NUM_STEPS):
 
         if (steps_done%config.STEP_SIZE==0) and (steps_done>=10000):
             optimize_model(policy_net, target_net, replay_memory, optimizer, scheduler)
-        if (steps_done%config.TARGET_UPDATE==0):
-            target_net.load_state_dict(policy_net.state_dict())
+        # if (steps_done%config.TARGET_UPDATE==0):
+        #     target_net.load_state_dict(policy_net.state_dict())
 
         # if render:
         #     env.render()
@@ -114,7 +114,7 @@ while (steps_done < config.NUM_STEPS):
 
     episode_rewards.append(cum_reward)
     # Update the target network, copying all weights and biases in DQN
-    if ep % 100 == 0:
+    if ep % config.TARGET_UPDATE == 0:
         print('EPISODES:',ep)
         print('Last 100 episodes mean rewards:',np.mean(episode_rewards[-100:]))
         print('Last 100 episodes max rewards:',np.max(episode_rewards[-100:]))
@@ -122,6 +122,7 @@ while (steps_done < config.NUM_STEPS):
         print('Total steps:',steps_done)
         print(steps_done / (time.time()-t),'FPS')
         print()
+        target_net.load_state_dict(policy_net.state_dict())
         # t = time.time()
         
 
