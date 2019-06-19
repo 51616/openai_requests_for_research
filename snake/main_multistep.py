@@ -42,6 +42,7 @@ while (steps_done < config.TOTAL_STEPS):
 
     rewards = deque([], maxlen= n_steps)
     states = deque([], maxlen= n_steps)
+    actions = deque([], maxlen= n_steps)
 
     for step in count(1):
 
@@ -53,13 +54,14 @@ while (steps_done < config.TOTAL_STEPS):
 
         rewards.append(reward)
         states.append(obs)
+        actions.append(action)
 
         if done:
             for i in range(len(states)):
                 n_steps_reward = 0
                 for td,j in enumerate(range(i,len(rewards))):
                     n_steps_reward += (config.GAMMA**td) * rewards[j]
-                transition = Transition(torch.tensor(states[i]).to(device, non_blocking=True), torch.tensor([action]).to(device, non_blocking=True),
+                transition = Transition(torch.tensor(states[i]).to(device, non_blocking=True), torch.tensor([actions[i]]).to(device, non_blocking=True),
                                         None, torch.tensor([n_steps_reward]).to(device, non_blocking=True).float())
                 replay_memory.push(transition)
 
@@ -67,7 +69,7 @@ while (steps_done < config.TOTAL_STEPS):
                 n_steps_reward = 0
                 for i in range(n_steps):
                     n_steps_reward += (config.GAMMA**i) * rewards[i]
-                transition = Transition(torch.tensor(states[0]).to(device, non_blocking=True), torch.tensor([action]).to(device, non_blocking=True),
+                transition = Transition(torch.tensor(states[0]).to(device, non_blocking=True), torch.tensor([action[0]]).to(device, non_blocking=True),
                                         torch.tensor(new_obs).to(device, non_blocking=True), torch.tensor([n_steps_reward]).to(device, non_blocking=True).float())
                 replay_memory.push(transition)
             
