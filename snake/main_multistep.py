@@ -37,8 +37,9 @@ while (steps_done < config.TOTAL_STEPS):
     obs = env.reset()
     cum_reward = 0
     ep += 1
-    if ep%config.N_STEPS_UPDATE:
+    if (ep%config.N_STEPS_UPDATE) and (ep>1):
         n_steps = min(n_steps+1, config.MAX_N_STEPS)
+
     rewards = deque([], maxlen= n_steps)
     states = deque([], maxlen= n_steps)
 
