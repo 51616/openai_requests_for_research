@@ -64,38 +64,38 @@ def optimize_model(policy_net, target_net, replay_memory, optimizer, scheduler):
     # (a final state would've been the one after which simulation ended)
     non_final_mask = torch.tensor(tuple(map(lambda s: s is not None,
                                           batch.next_state)), device=device, dtype=torch.uint8) 
-    non_final_next_states = torch.cat([s for s in batch.next_state
+    
+    try:
+        non_final_next_states = torch.stack([s for s in batch.next_state
                                                 if s is not None])
+    except:
+        non_final_next_states = None
+
     state_batch = torch.stack(batch.state)
     action_batch = torch.stack(batch.action)
     reward_batch = torch.stack(batch.reward)
-    # print(state_batch.size())
     # Compute Q(s_t, a) - the model computes Q(s_t), then we select the
     # columns of actions taken. These are the actions which would've been taken
     # for each batch state according to policy_net
     state_action_values = policy_net(state_batch).gather(1, action_batch)
-    # print('State action values:',state_action_values)
     # Compute V(s_{t+1}) for all next states.
     # Expected values of actions for non_final_next_states are computed based
     # on the "older" target_net; selecting their best reward with max(1)[0].
     # This is merged based on the mask, such that we'll have either the expected
     # state value or 0 in case the state was final.
     next_state_values = torch.zeros(config.BATCH_SIZE, device=device)
-    next_state_values[non_final_mask] = target_net(non_final_next_states).max(1)[0].detach()
+    
+    if non_final_next_states is not None :
+        next_state_values[non_final_mask] = target_net(non_final_next_states).max(1)[0].detach()
+
+    # next_state_action = policy_net(non_final_next_states).max(1)[1].view(-1,1).detach()
+    # next_state_values[non_final_mask] = target_net(non_final_next_states).gather(1, next_state_action)
+    
     next_state_values = next_state_values.view(config.BATCH_SIZE,1).float()
     # Compute the expected Q values
-    #print(next_state_values)
-    #print(next_state_values.size())
-    #print(reward_batch)
-    #print(reward_batch.size())
     expected_state_action_values = (next_state_values * config.GAMMA) + reward_batch.float()
-    #print(expected_state_action_values)
-    #print(expected_state_action_values.size())
     # Compute Huber loss
-    #print('State action values size:',state_action_values.size())
-    #print('expected_state_action_values size:',expected_state_action_values.size())
     loss = F.smooth_l1_loss(state_action_values, expected_state_action_values)
-    # print(loss.item())
 
     # Optimize the model
     # for param_group in optimizer.param_groups:

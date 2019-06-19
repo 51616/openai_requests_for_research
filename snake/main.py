@@ -51,7 +51,7 @@ def plot_rewards():
 policy_net = convnet(config.BOARD_SIZE, in_channel=5).float().to(device, non_blocking=True).eval()
 target_net = convnet(config.BOARD_SIZE, in_channel=5).float().to(device, non_blocking=True).eval()
 optimizer = torch.optim.Adam(policy_net.parameters(), lr=1e-4)
-scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones= [25000,50000,200000,1250000], gamma=0.5)
+scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones= [25000,50000,125000,250000,1250000], gamma=0.5)
 
 env = Snake(config.BOARD_SIZE)
 
@@ -65,7 +65,7 @@ means = []
 
 t = time.time()
 
-while (steps_done < config.NUM_STEPS):
+while (steps_done < config.TOTAL_STEPS):
     done = False
     obs = env.reset()
     cum_reward = 0
