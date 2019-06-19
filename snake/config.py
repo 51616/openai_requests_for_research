@@ -5,7 +5,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 BOARD_SIZE = 7
 
-TOTAL_STEPS = 10000000
+TOTAL_STEPS = 5000000
 STEP_SIZE = 4
 BATCH_SIZE = 512
 GAMMA = 0.99
