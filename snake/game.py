@@ -15,7 +15,7 @@ BODY = -1
 
 FOOD_REWARD = 1
 MOVE_REWARD = 0
-DEATH_PENALTY = -100
+DEATH_PENALTY = -1
 
 
 class Snake():
@@ -108,7 +108,7 @@ class Snake():
                 return ((self.board_body.copy(),self.board_head.copy(),
                             self.board_tail.copy(),self.board_food.copy(),
                             np.ones((self.board_size,self.board_size))*len(self.body)),
-                            FOOD_REWARD*100, True)
+                            FOOD_REWARD*10, True)
             
             self.food = self.create_food()
 
