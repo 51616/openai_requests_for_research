@@ -50,8 +50,9 @@ while (steps_done < config.TOTAL_STEPS):
 
         new_obs, reward, done = env.step(action)
         cum_reward += reward
-        rewards = deque([r/config.GAMMA for r in rewards], maxlen = n_steps)
-        rewards.append( reward * config.GAMMA**n_steps )
+        # rewards = deque([r/config.GAMMA for r in rewards], maxlen = n_steps)
+        # rewards.append( reward * config.GAMMA**n_steps )
+        rewards.append(reward)
         states.append(obs)
         actions.append(action)
 
@@ -59,14 +60,20 @@ while (steps_done < config.TOTAL_STEPS):
 
         if done:
             for i in range(len(states)):
-                n_steps_reward = np.sum(discounted_reward[i:])
+                # n_steps_reward = np.sum(discounted_reward[i:])
+                n_steps_reward = 0
+                for td,j in enumerate(range(i,len(rewards))):
+                    n_steps_reward += (config.GAMMA**td) * rewards[j]
                 transition = Transition(torch.tensor(states[i]).to(device, non_blocking=True), torch.tensor([actions[i]]).to(device, non_blocking=True),
                                         None, torch.tensor([n_steps_reward]).to(device, non_blocking=True).float())
                 # print(transition)
                 replay_memory.push(transition)
 
         elif len(states)==n_steps:
-                n_steps_reward = np.sum(discounted_reward)
+                # n_steps_reward = np.sum(discounted_reward)
+                n_steps_reward = 0
+                for i in range(n_steps):
+                    n_steps_reward += (config.GAMMA**i) * rewards[i]
                 transition = Transition(torch.tensor(states[0]).to(device, non_blocking=True), torch.tensor([actions[0]]).to(device, non_blocking=True),
                                         torch.tensor(new_obs).to(device, non_blocking=True), torch.tensor([n_steps_reward]).to(device, non_blocking=True).float())
                 # print(transition)
@@ -78,8 +85,8 @@ while (steps_done < config.TOTAL_STEPS):
             # print('Training...')
             optimize_model(policy_net, target_net, replay_memory, optimizer, scheduler)
 
-        if (steps_done%config.N_STEPS_UPDATE==0) and (ep>1):
-            n_steps = min(n_steps+2, config.MAX_N_STEPS)
+        if (steps_done%config.N_STEPS_UPDATE==0) and (steps_done>1):
+            n_steps = min(n_steps+1, config.MAX_N_STEPS)
             print('Update n-steps to :',n_steps)
 
         if done:
