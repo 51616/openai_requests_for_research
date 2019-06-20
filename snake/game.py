@@ -85,7 +85,7 @@ class Snake():
             return ((self.board_body.copy(),self.board_head.copy(),
         self.board_tail.copy(),self.board_food.copy(), np.ones((self.board_size,self.board_size))*len(self.body)), DEATH_PENALTY, True)
         # hit body
-        if self.board_body[next_y, next_x]:
+        if self.board_body[next_y, next_x]>1:
             return ((self.board_body.copy(),self.board_head.copy(),
         self.board_tail.copy(),self.board_food.copy(), np.ones((self.board_size,self.board_size))*len(self.body)), DEATH_PENALTY, True)
         # hit the food
@@ -113,10 +113,12 @@ class Snake():
 
         # normal move
         else:
-            self.board_body = F.relu(torch.from_numpy(self.board_body - 1)).numpy()
+            
             self.board_head[next_y, next_x] = 1
+            self.board_head[self.head[0], self.head[1]] = 0
             self.board_body[next_y, next_x] = len(self.body)
-            self.board_body[self.body[0][0], self.body[0][1]] = 0
+            self.board_body = F.relu(torch.from_numpy(self.board_body - 1)).numpy()
+            # self.board_body[self.body[0][0], self.body[0][1]] = 0
             self.board_tail[self.tail[0], self.tail[1]] = 0
 
             self.body.append((next_y, next_x))            
@@ -126,7 +128,7 @@ class Snake():
             self.board_tail[self.tail[0], self.tail[1]] = 1
 
             # self.board_body[self.head[0], self.head[1]] = 1
-            self.board_head[self.head[0], self.head[1]] = 0
+            
             self.head = (next_y, next_x)
 
             # print('New board')
