@@ -34,14 +34,10 @@ class Snake():
         return food_pos
 
     def reset(self):
-        self.board_body = np.zeros(
-            (self.board_size, self.board_size), dtype='int')
-        self.board_head = np.zeros(
-            (self.board_size, self.board_size), dtype='int')
-        self.board_food = np.zeros(
-            (self.board_size, self.board_size), dtype='int')
-        self.board_tail = np.zeros(
-            (self.board_size, self.board_size), dtype='int')
+        self.board_body = np.zeros((self.board_size, self.board_size), dtype='int')
+        self.board_head = np.zeros((self.board_size, self.board_size), dtype='int')
+        self.board_food = np.zeros((self.board_size, self.board_size), dtype='int')
+        self.board_tail = np.zeros((self.board_size, self.board_size), dtype='int')
         
 
         rand_y = np.random.randint(self.board_size)  # (self.board_size+1)//2
@@ -108,7 +104,7 @@ class Snake():
                 return ((self.board_body.copy(),self.board_head.copy(),
                             self.board_tail.copy(),self.board_food.copy(),
                             np.ones((self.board_size,self.board_size))*len(self.body)),
-                            FOOD_REWARD*10, True)
+                            FOOD_REWARD, True)
             
             self.food = self.create_food()
 

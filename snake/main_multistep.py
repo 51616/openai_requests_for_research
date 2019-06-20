@@ -50,9 +50,11 @@ while (steps_done < config.TOTAL_STEPS):
 
         new_obs, reward, done = env.step(action)
         cum_reward += reward
-        # rewards = deque([r/config.GAMMA for r in rewards], maxlen = n_steps)
-        # rewards.append( reward * config.GAMMA**n_steps )
-        rewards.append(reward)
+        
+        rewards.append( reward * config.GAMMA**n_steps )
+        rewards = deque([r/config.GAMMA for r in rewards], maxlen = n_steps)
+        
+        # rewards.append(reward)
         states.append(obs)
         actions.append(action)
 
@@ -60,20 +62,20 @@ while (steps_done < config.TOTAL_STEPS):
 
         if done:
             for i in range(len(states)):
-                # n_steps_reward = np.sum(discounted_reward[i:])
-                n_steps_reward = 0
-                for td,j in enumerate(range(i,len(rewards))):
-                    n_steps_reward += (config.GAMMA**td) * rewards[j]
+                n_steps_reward = np.sum(discounted_reward[i:])
+                # n_steps_reward = 0
+                # for td,j in enumerate(range(i,len(rewards))):
+                #     n_steps_reward += (config.GAMMA**td) * rewards[j]
                 transition = Transition(torch.tensor(states[i]).to(device, non_blocking=True), torch.tensor([actions[i]]).to(device, non_blocking=True),
                                         None, torch.tensor([n_steps_reward]).to(device, non_blocking=True).float())
                 # print(transition)
                 replay_memory.push(transition)
 
         elif len(states)==n_steps:
-                # n_steps_reward = np.sum(discounted_reward)
-                n_steps_reward = 0
-                for i in range(n_steps):
-                    n_steps_reward += (config.GAMMA**i) * rewards[i]
+                n_steps_reward = np.sum(discounted_reward)
+                # n_steps_reward = 0
+                # for i in range(n_steps):
+                #     n_steps_reward += (config.GAMMA**i) * rewards[i]
                 transition = Transition(torch.tensor(states[0]).to(device, non_blocking=True), torch.tensor([actions[0]]).to(device, non_blocking=True),
                                         torch.tensor(new_obs).to(device, non_blocking=True), torch.tensor([n_steps_reward]).to(device, non_blocking=True).float())
                 # print(transition)
