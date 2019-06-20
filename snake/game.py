@@ -118,7 +118,7 @@ class Snake():
         else:
             if (self.stale>(self.board_size**2)*4):
                 return ((self.board_body.copy(),self.board_head.copy(),
-        self.board_tail.copy(),self.board_food.copy(), np.ones((self.board_size,self.board_size))*len(self.body)), DEATH_PENALTY, True)
+        self.board_tail.copy(),self.board_food.copy(), np.ones((self.board_size,self.board_size))*len(self.body)), MOVE_REWARD, True)
             
             self.board_head[next_y, next_x] = 1
             self.board_head[self.head[0], self.head[1]] = 0
