@@ -38,6 +38,7 @@ class Snake():
         self.board_head = np.zeros((self.board_size, self.board_size), dtype='int')
         self.board_food = np.zeros((self.board_size, self.board_size), dtype='int')
         self.board_tail = np.zeros((self.board_size, self.board_size), dtype='int')
+        self.stale = 0
         
 
         rand_y = np.random.randint(self.board_size)  # (self.board_size+1)//2
@@ -55,6 +56,7 @@ class Snake():
 
     def step(self, action):  # return obs,reward,done
         # check if input is valid action
+        # print(self.stale)
         if action not in self.action_space:
             return ((self.board_body.copy(),self.board_head.copy(),
         self.board_tail.copy(),self.board_food.copy(), np.ones((self.board_size,self.board_size))*len(self.body)), -1, True)
@@ -107,12 +109,16 @@ class Snake():
                             FOOD_REWARD, True)
             
             self.food = self.create_food()
+            self.stale = 0
 
             return ((self.board_body.copy(),self.board_head.copy(),
         self.board_tail.copy(),self.board_food.copy(), np.ones((self.board_size,self.board_size))*len(self.body)), FOOD_REWARD, False)
 
         # normal move
         else:
+            if (self.stale>(self.board_size**2)*4):
+                return ((self.board_body.copy(),self.board_head.copy(),
+        self.board_tail.copy(),self.board_food.copy(), np.ones((self.board_size,self.board_size))*len(self.body)), DEATH_PENALTY, True)
             
             self.board_head[next_y, next_x] = 1
             self.board_head[self.head[0], self.head[1]] = 0
@@ -130,6 +136,7 @@ class Snake():
             # self.board_body[self.head[0], self.head[1]] = 1
             
             self.head = (next_y, next_x)
+            self.stale += 1
 
             # print('New board')
             # print(self.board)
