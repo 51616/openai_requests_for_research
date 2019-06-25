@@ -29,6 +29,7 @@ ep = 0
 episode_rewards = []
 episode_durations = []
 means = []
+best_mean = -1
 
 t = time.time()
 
@@ -99,14 +100,23 @@ while (steps_done < config.TOTAL_STEPS):
     episode_rewards.append(cum_reward)
     # Update the target network, copying all weights and biases in DQN
     if ep % config.TARGET_UPDATE == 0:
+        ep_mean = np.mean(episode_rewards[-100:])
         print('EPISODES:',ep)
-        print('Last 100 episodes mean rewards:',np.mean(episode_rewards[-100:]))
+        print('Last 100 episodes mean rewards:',ep_mean)
         print('Last 100 episodes max rewards:',np.max(episode_rewards[-100:]))
         print('Last 100 episodes min rewards:',np.min(episode_rewards[-100:]))
         print('Total steps:',steps_done)
         print(steps_done / (time.time()-t),'FPS')
         print()
         target_net.load_state_dict(policy_net.state_dict())
+        if (ep_mean>best_mean):
+            torch.save({
+            'episodes': ep,
+            'model_state_dict': policy_net.state_dict(),
+            'optimizer_state_dict': optimizer.state_dict(),
+            'scheduler_state_dict':scheduler.state_dict(),
+            '100eps_mean_reward': np.mean(episode_rewards[-100:]),
+            }, 'best_dqn.pth')
         # t = time.time()
         
 
@@ -117,4 +127,4 @@ torch.save({
             'optimizer_state_dict': optimizer.state_dict(),
             'scheduler_state_dict':scheduler.state_dict(),
             '100eps_mean_reward': np.mean(episode_rewards[-100:]),
-            }, 'policy_net.pth')
+            }, 'lastest_dqn.pth')
