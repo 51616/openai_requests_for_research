@@ -26,7 +26,7 @@ class feedforward(nn.Module):
         return x
 
 class convnet(nn.Module):
-    def __init__(self, board_size=20, hidden_size=128, conv_channel = 64, in_channel=3):
+    def __init__(self, board_size=20, hidden_size=512, conv_channel = 64, in_channel=3):
         super(convnet, self).__init__()
         self.hidden_size = hidden_size
         self.board_size = board_size
@@ -47,7 +47,7 @@ class convnet(nn.Module):
         return x
 
 class convnet_duel(nn.Module):
-    def __init__(self, board_size=20, hidden_size=128, conv_channel = 64, in_channel=3):
+    def __init__(self, board_size=20, hidden_size=512, conv_channel = 64, in_channel=3):
         super(convnet_duel, self).__init__()
         self.hidden_size = hidden_size
         self.board_size = board_size
