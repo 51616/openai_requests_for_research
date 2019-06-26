@@ -82,7 +82,7 @@ while (steps_done < config.TOTAL_STEPS):
                 # print(transition)
                 replay_memory.push(transition)
 
-            
+        obs = new_obs
 
         if (steps_done%config.STEP_SIZE==0) and (len(replay_memory)>=10000):
             # print('Training...')
@@ -95,7 +95,7 @@ while (steps_done < config.TOTAL_STEPS):
         if done:
             break
 
-        obs = new_obs
+        
 
     episode_rewards.append(cum_reward)
     # Update the target network, copying all weights and biases in DQN
