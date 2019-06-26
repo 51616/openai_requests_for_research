@@ -77,21 +77,22 @@ def optimize_model(policy_net, target_net, replay_memory, optimizer, scheduler):
     # Compute Q(s_t, a) - the model computes Q(s_t), then we select the
     # columns of actions taken. These are the actions which would've been taken
     # for each batch state according to policy_net
-    state_action_values = policy_net(state_batch).gather(1, action_batch)
+    online_prediction = policy_net(state_batch)
+    state_action_values = online_prediction.gather(1, action_batch)
     # Compute V(s_{t+1}) for all next states.
     # Expected values of actions for non_final_next_states are computed based
     # on the "older" target_net; selecting their best reward with max(1)[0].
     # This is merged based on the mask, such that we'll have either the expected
     # state value or 0 in case the state was final.
-    next_state_values = torch.zeros(config.BATCH_SIZE, device=device)
+    next_state_values = torch.zeros((config.BATCH_SIZE,1), device=device)
     
     if non_final_next_states is not None :
-        next_state_values[non_final_mask] = target_net(non_final_next_states).max(1)[0].detach()
+        #next_state_values[non_final_mask] = target_net(non_final_next_states).max(1)[0].view(-1,1).detach()
 
-    # next_state_action = policy_net(non_final_next_states).max(1)[1].view(-1,1).detach()
-    # next_state_values[non_final_mask] = target_net(non_final_next_states).gather(1, next_state_action)
+        # Double DQN
+	    next_state_action = online_prediction[non_final_mask].max(1)[1].view(-1,1)
+	    next_state_values[non_final_mask] = target_net(non_final_next_states).gather(1, next_state_action).float()
     
-    next_state_values = next_state_values.view(config.BATCH_SIZE,1).float()
     # Compute the expected Q values
     expected_state_action_values = (next_state_values * config.GAMMA) + reward_batch.float()
     # Compute Huber loss
