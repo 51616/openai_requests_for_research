@@ -13,8 +13,8 @@ import time
 
 
 
-policy_net = convnet_duel(config.BOARD_SIZE, in_channel=5).float().to(device, non_blocking=True).eval()
-target_net = convnet_duel(config.BOARD_SIZE, in_channel=5).float().to(device, non_blocking=True).eval()
+policy_net = convnet(config.BOARD_SIZE, in_channel=5).float().to(device, non_blocking=True).eval()
+target_net = convnet(config.BOARD_SIZE, in_channel=5).float().to(device, non_blocking=True).eval()
 optimizer = torch.optim.RMSprop(policy_net.parameters(), lr=1e-4, momentum=0.9)
 scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones= [25000,50000,75000,100000,125000,200000], gamma=0.5)
 
