@@ -22,6 +22,7 @@ class Snake():
     def __init__(self, board_size=20):
         self.action_space = [0, 1, 2, 3]
         self.board_size = board_size
+        self.spawn_size = 5
 
     def create_food(self, y=None, x=None):
         if x is None or y is None:
@@ -39,12 +40,30 @@ class Snake():
         self.board_food = np.zeros((self.board_size, self.board_size), dtype='int')
         self.board_tail = np.zeros((self.board_size, self.board_size), dtype='int')
         self.stale = 0
-        
 
-        rand_y = np.random.randint(self.board_size)  # (self.board_size+1)//2
-        self.body = [(rand_y,i) for i in range(5)] #self.board_size//2+1
+        direction = np.random.randint(4)
+
+        if direction==RIGHT_MOVE:
+            rand_y = np.random.randint(0,self.board_size)
+            rand_x = np.random.randint(self.spawn_size-1,self.board_size)
+            self.body = [(rand_y,i) for i in range(rand_x-4,rand_x+1)]
+        elif direction==DOWN_MOVE:
+            rand_y = np.random.randint(self.spawn_size-1,self.board_size)
+            rand_x = np.random.randint(0,self.board_size)
+            self.body = [(i,rand_x) for i in range(rand_y-4,rand_y+1)]
+
+        elif direction==LEFT_MOVE:
+            rand_y = np.random.randint(0,self.board_size)
+            rand_x = np.random.randint(0,self.board_size-self.spawn_size)
+            self.body = [(rand_y,i) for i in range(rand_x+4,rand_x-1,-1)]
+        else:
+            rand_y = np.random.randint(0,self.board_size-self.spawn_size)
+            rand_x = np.random.randint(0,self.board_size)
+            self.body = [(i,rand_x) for i in range(rand_y+4,rand_y-1,-1)]
+
         for i, (y, x) in enumerate(self.body):
             self.board_body[y, x] = i+1
+
         self.head = (self.body[-1][0], self.body[-1][1])
         self.tail = (self.body[0][0], self.body[0][1])
         self.board_head[self.head[0], self.head[1]] = 1
@@ -161,4 +180,4 @@ class Snake():
         img = Image.fromarray(render_arr, 'RGB')
         img = img.resize((300, 300))
         cv2.imshow('', np.array(img))
-        cv2.waitKey(100)
+        cv2.waitKey(30)
