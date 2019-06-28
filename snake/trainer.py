@@ -114,7 +114,7 @@ def optimize_model(policy_net, target_net, replay_memory, optimizer, scheduler, 
     for param in policy_net.parameters():
         param.grad.data.clamp_(-1, 1)
     optimizer.step()
-    # scheduler.step()
+    scheduler.step()
     policy_net.eval()
     # print('Model mode:',policy_net.training)
     return
