@@ -48,7 +48,7 @@ def select_action(obs, policy_net, steps_done, explore=True):
         return np.argmax(pred.detach().cpu().numpy())
 
 
-def optimize_model(policy_net, target_net, replay_memory, optimizer, scheduler):
+def optimize_model(policy_net, target_net, replay_memory, optimizer, scheduler, n_steps=0):
     if len(replay_memory) < config.BATCH_SIZE:
         return
     # print('Training...')
@@ -93,7 +93,7 @@ def optimize_model(policy_net, target_net, replay_memory, optimizer, scheduler):
     
     next_state_values = next_state_values.view(config.BATCH_SIZE,1).float()
     # Compute the expected Q values
-    expected_state_action_values = (next_state_values * config.GAMMA) + reward_batch.float()
+    expected_state_action_values = (next_state_values * config.GAMMA**n_steps) + reward_batch.float()
     # Compute Huber loss
     loss = F.smooth_l1_loss(state_action_values, expected_state_action_values)
 

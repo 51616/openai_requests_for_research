@@ -61,6 +61,11 @@ while (steps_done < config.TOTAL_STEPS):
 
         discounted_reward = list(rewards)
 
+        # x= torch.tensor(np.arange(8)).view(2,2,2)
+        # x90 = x.transpose(0, 1).flip(0)
+        # x180 = x.flip(0).flip(1)
+        # x270 = x.transpose(0, 1).flip(1)
+
         if done:
             for i in range(len(states)):
                 n_steps_reward = np.sum(discounted_reward[i:])
@@ -86,7 +91,7 @@ while (steps_done < config.TOTAL_STEPS):
 
         if (steps_done%config.STEP_SIZE==0) and (len(replay_memory)>=10000):
             # print('Training...')
-            optimize_model(policy_net, target_net, replay_memory, optimizer, scheduler)
+            optimize_model(policy_net, target_net, replay_memory, optimizer, scheduler, n_steps)
 
         if (steps_done%config.N_STEPS_UPDATE==0) and (steps_done>1):
             n_steps = min(n_steps+1, config.MAX_N_STEPS)
