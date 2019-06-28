@@ -95,7 +95,7 @@ def optimize_model(policy_net, target_net, replay_memory, optimizer, scheduler, 
     next_state_values = torch.zeros(config.BATCH_SIZE, device=device)
     
     if non_final_next_states is not None :
-        next_state_values[non_final_mask] = target_net(non_final_next_states).max(1)[0].detach()
+        next_state_values[non_final_mask] = policy_net(non_final_next_states).max(1)[0].detach()
 
     # next_state_action = policy_net(non_final_next_states).max(1)[1].view(-1,1).detach()
     # next_state_values[non_final_mask] = target_net(non_final_next_states).gather(1, next_state_action)
