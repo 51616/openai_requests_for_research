@@ -32,20 +32,19 @@ def select_action(obs, policy_net, steps_done, explore=True):
     if explore:
         sample = random.random()
         eps_threshold = config.EPS_END + (config.EPS_START - config.EPS_END) * math.exp(-1. * steps_done / config.EPS_DECAY)
-        if sample > eps_threshold:
-            with torch.no_grad():
-                # t.max(1) will return largest column value of each row.
-                # second column on max result is index of where max element was
-                # found, so we pick action with the larger expected reward.
-                state = torch.tensor(obs).to(device, non_blocking=True)
-                return np.argmax(policy_net(state).detach().cpu().numpy())
-        else:
+        if sample <= eps_threshold:
             return np.random.randint(4)  # torch.tensor([[random.randrange(4)]])  # , device=device, dtype=torch.long
-    else:
-        state = torch.tensor(obs).to(device, non_blocking=True)
-        pred = policy_net(state)
-        # print(pred)
-        return np.argmax(pred.detach().cpu().numpy())
+    # else:
+    #     state = torch.tensor(obs).to(device, non_blocking=True).view((-1,5,config.BOARD_SIZE,config.BOARD_SIZE))
+    #     pred = policy_net(state)
+    #     # print(pred)
+    #     return np.argmax(pred.detach().cpu().numpy())
+    with torch.no_grad():
+        # t.max(1) will return largest column value of each row.
+        # second column on max result is index of where max element was
+        # found, so we pick action with the larger expected reward.
+        state = torch.tensor(obs).to(device, non_blocking=True).view((-1,5,config.BOARD_SIZE,config.BOARD_SIZE))
+        return policy_net(state).max(1)[1].detach().cpu().numpy()[0]
 
 
 def optimize_model(policy_net, target_net, replay_memory, optimizer, scheduler, n_steps=0):

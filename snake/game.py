@@ -161,4 +161,4 @@ class Snake():
         img = Image.fromarray(render_arr, 'RGB')
         img = img.resize((300, 300))
         cv2.imshow('', np.array(img))
-        cv2.waitKey(100)
+        cv2.waitKey(30)

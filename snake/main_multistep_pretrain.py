@@ -1,5 +1,5 @@
 from game import Snake
-from model import feedforward, convnet, convnet_duel, ConvAgent
+from model import feedforward, convnet, convnet_duel
 from trainer import ReplayMemory, select_action, optimize_model
 from utils import Transition
 import config
@@ -10,15 +10,32 @@ import numpy as np
 import torch
 from itertools import count
 import time
-from torchsummary import summary
 
 
-policy_net = ConvAgent().float().to(device, non_blocking=True).eval()
-target_net = ConvAgent().float().to(device, non_blocking=True).eval()
-optimizer = torch.optim.RMSprop(policy_net.parameters(), lr=1e-4, momentum=0.9)
+
+policy_net = convnet(config.BOARD_SIZE, in_channel=5).float().to(device, non_blocking=True)
+target_net = convnet(config.BOARD_SIZE, in_channel=5).float().to(device, non_blocking=True)
+
+# print(policy_net)
+# print(policy_net.state_dict()['conv1.weight'])
+
+pretrain_checkpoint = torch.load('policy_net_10_step_no_bug.pth', map_location=device)
+pretrained_dict = {k: v for k, v in pretrain_checkpoint['model_state_dict'].items() if 'dense' not in k} # load conv layer weights
+
+policy_net.load_state_dict(pretrained_dict, strict=False)
+policy_net.eval()
+target_net.load_state_dict(pretrained_dict, strict=False)
+target_net.eval()
+
+print(policy_net.conv1.parameters())
+
+optimizer = torch.optim.RMSprop([{'params':policy_net.conv1.parameters(), 'lr':1e-6},
+                                {'params':policy_net.bn1.parameters(), 'lr':1e-6},
+                                {'params':policy_net.conv2.parameters(), 'lr':1e-6},
+                                {'params':policy_net.bn2.parameters(), 'lr':1e-6},
+                                {'params':policy_net.dense.parameters()}] , lr=1e-4, momentum=0.9)
+
 scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones= [25000,50000,75000,100000,125000,250000,500000], gamma=0.5)
-
-# summary(policy_net, (5,7,7), device='cpu')
 
 env = Snake(config.BOARD_SIZE)
 

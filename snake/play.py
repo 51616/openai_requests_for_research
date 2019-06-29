@@ -3,6 +3,7 @@ from model import feedforward, convnet
 from trainer import ReplayMemory, select_action, optimize_model
 from utils import Transition
 import config
+from config import device
 
 from collections import namedtuple
 import numpy as np
@@ -14,11 +15,10 @@ import torch
 from itertools import count
 import time
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-checkpoint = torch.load('policy_net_with_tail.pth')
+checkpoint = torch.load('policy_net_10_step_no_bug.pth', map_location=device)
 
-policy_net = convnet(config.BOARD_SIZE).float().to(device, non_blocking=True)
+policy_net = convnet(config.BOARD_SIZE, in_channel=5).float().to(device, non_blocking=True)
 policy_net.load_state_dict(checkpoint['model_state_dict'])
 policy_net.eval()
 
