@@ -52,10 +52,10 @@ while (steps_done < config.TOTAL_STEPS):
         new_obs, reward, done = env.step(action)
         cum_reward += reward
         
-        rewards.append( reward * config.GAMMA**n_steps )
-        rewards = deque([r/config.GAMMA for r in rewards], maxlen = n_steps)
+        # rewards.append( reward * config.GAMMA**n_steps )
+        # rewards = deque([r/config.GAMMA for r in rewards], maxlen = n_steps)
         
-        # rewards.append(reward)
+        rewards.append(reward)
         states.append(obs)
         actions.append(action)
 
