@@ -43,7 +43,7 @@ def select_action(obs, policy_net, steps_done, explore=True):
         # t.max(1) will return largest column value of each row.
         # second column on max result is index of where max element was
         # found, so we pick action with the larger expected reward.
-        state = torch.tensor(obs).to(device, non_blocking=True).view((-1,5,config.BOARD_SIZE,config.BOARD_SIZE))
+        state = torch.tensor(obs).to(device, non_blocking=True)
         return policy_net(state).max(1)[1].detach().cpu().numpy()[0]
 
 
