@@ -38,7 +38,7 @@ def constant_lr(x):
     return 1
 
 def multi_step_lr(iteration):
-    milestones = [25000,50000,75000,100000,125000,250000,500000]
+    milestones = [25000,50000,75000,100000,125000]
     gamma = 0.5
     for i, milestone in enumerate(milestones[::-1]):
         if iteration >= milestone:
