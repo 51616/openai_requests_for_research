@@ -108,7 +108,7 @@ class ConvAgent(nn.Module):
                  num_feedforward: int = 1,
                  feedforward_dim: int = 256,
                  num_actions: int = 4,
-                 conv_channels: int = 16,
+                 conv_channels: int = 64,
                  num_heads: int = 1):
         super(ConvAgent, self).__init__()
         self.in_channels = in_channels
