@@ -6,6 +6,8 @@ import torch.optim as optim
 import torch.nn.functional as F
 import torch.nn as nn
 import torch
+from config import BOARD_SIZE
+
 
 class ConvBlock(nn.Module):
     def __init__(self, in_channels: int, out_channels: int, residual: bool, add_coords: bool = True):
@@ -104,9 +106,9 @@ class ConvAgent(nn.Module):
                  num_initial_convs: int = 1,
                  num_residual_convs: int = 2,
                  num_feedforward: int = 1,
-                 feedforward_dim: int = 32,
+                 feedforward_dim: int = 256,
                  num_actions: int = 4,
-                 conv_channels: int = 64,
+                 conv_channels: int = 16,
                  num_heads: int = 1):
         super(ConvAgent, self).__init__()
         self.in_channels = in_channels
@@ -130,7 +132,7 @@ class ConvAgent(nn.Module):
 
         self.residual_conv_blocks = nn.Sequential(*residual_convs)
 
-        feedforwards = [feedforward_block(self.conv_channels, self.feedforward_dim), ]
+        feedforwards = [feedforward_block(self.conv_channels*BOARD_SIZE**2, self.feedforward_dim), ]
         for _ in range(self.num_feedforward - 1):
             feedforwards.append(feedforward_block(self.feedforward_dim, self.feedforward_dim))
 
@@ -142,6 +144,6 @@ class ConvAgent(nn.Module):
     def forward(self, x: torch.Tensor) -> (torch.Tensor, torch.Tensor):
         x = self.initial_conv_blocks(x.float())
         x = self.residual_conv_blocks(x)
-        x = F.adaptive_max_pool2d(x, (1, 1)).view(x.size(0), -1)
+        x = x.view(-1,self.conv_channels*BOARD_SIZE**2)
         x = self.dense(x)
         return x
