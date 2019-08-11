@@ -32,16 +32,18 @@ class convnet(nn.Module):
         self.board_size = board_size
         self.conv_channel = conv_channel
         self.in_channel = in_channel
-        self.conv1 = nn.Conv2d(self.in_channel,self.conv_channel//2,kernel_size=3,stride=1,padding=1)
+        self.negative_pad = nn.ConstantPad2d(1, -1)
+
+        self.conv1 = nn.Conv2d(self.in_channel,self.conv_channel//2,kernel_size=3,stride=1,padding=0)
         self.bn1 = nn.BatchNorm2d(self.conv_channel//2)
-        self.conv2 = nn.Conv2d(self.conv_channel//2,self.conv_channel,kernel_size=3,stride=1,padding=1)
+        self.conv2 = nn.Conv2d(self.conv_channel//2,self.conv_channel,kernel_size=3,stride=1,padding=0)
         self.bn2 = nn.BatchNorm2d(self.conv_channel)
         self.dense = nn.Linear(self.conv_channel*self.board_size**2, 4)
 
     def forward(self,x):
         x = x.view(-1,self.in_channel,self.board_size,self.board_size).float()
-        x = F.relu(self.bn1(self.conv1(x)))
-        x = F.relu(self.bn2(self.conv2(x)))
+        x = F.relu(self.bn1(self.conv1(self.negative_pad(x))))
+        x = F.relu(self.bn2(self.conv2(self.negative_pad(x))))
         x = self.dense(x.view(-1,self.conv_channel*self.board_size**2))
         # print('Model output:',x)
         return x
